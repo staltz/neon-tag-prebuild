@@ -1,49 +1,26 @@
-# neon-load-or-build
+# neon-tag-prebuild
 
-> Build tool and bindings loader for [Neon Bindings](neon-bindings.com/) that supports prebuilds.
+> A CLI to rename a [Neon](https://neon-bindings.com) `index.node` to a prebuildify-style file
 
 ```
-npm install neon-load-or-build
+npm install neon-tag-prebuild
 ```
-
-Heavily inspired on and based on [node-gyp-build](https://github.com/prebuild/node-gyp-build).
 
 ## Usage
 
-`neon-load-or-build` as a the CLI works similar to `neon build` except that it will check if a build or prebuild is present before rebuilding your project.
+[Neon](https://neon-bindings.com) is great, but its story around publishing modules to npm isn't clear yet. Meanwhile, in node-gyp world, [prebuildify](https://github.com/prebuild/prebuildify) (to produce a release) and [node-pre-gyp](https://github.com/prebuild/node-pre-gyp) (to consume a release) are really neat solutions to shipping prebuilt native modules.
 
-It's main intended use is as an npm install script and bindings loader for native modules that bundle prebuilds (inspired by [`prebuildify`](https://github.com/prebuild/prebuildify)).
+This tool is meant for producing releases, and will basically just take your Neon project's `./native/index.node` (built by `neon build --release`) and copy it to your project's `./prebuilds` folder, much like `prebuildify` does. Although this tool **only** does that simple copy operation, it makes your life a tiny bit easier to produce releases that contain **prebuilds**.
 
-First add `neon-load-or-build` as an install script to your native neon-bindings project
+The file will be copied and named appropriately with *tags*, e.g.
 
-```js
-{
-  ...
-  "scripts": {
-    "install": "neon-load-or-build"
-  }
-}
-```
+- `./prebuilds/linux-x64/node.abi72.node`
 
-Then in your neon module's `lib/index.js`, instead of using the default `require('../native)`, use `node-load-or-build` to load your binding.
+This is useful in a CI environment where you can `neon build` for various architectures and versions of Node.js, then bundle them all together in the same `prebuilds` folder so you can release them in your npm package.
 
-``` js
-module.exports = require('neon-load-or-build')(__dirname + '/..')
-```
+To use this, just call the CLI `neon-tag-prebuild` (e.g. in a CI step) after the `native/index.node` has been built, to copy it to `prebuilds`.
 
-If you do these two things and bundle prebuilds, your Neon module will work for most platforms without having to compile on install time AND will work in both node and electron without the need to recompile between usage.
-
-Users can override `neon-load-or-build` and force compiling by doing `npm install --build-from-source`.
-
-Prebuilds will be attempted loaded from `MODULE_PATH/prebuilds/...` and then next `EXEC_PATH/prebuilds/...`.
-
-## Supported prebuild names
-
-If so desired you can bundle more specific flavors, for example `musl` builds to support Alpine, or targeting a numbered ARM architecture version.
-
-These prebuilds can be bundled in addition to generic prebuilds; `neon-load-or-build` will try to find the most specific flavor first. Prebuild filenames are composed of _tags_. The runtime tag takes precedence, as does an `abi` tag over `napi`. For more details on tags, please see [`prebuildify`][prebuildify].
-
-Values for the `libc` and `armv` tags are auto-detected but can be overridden through the `LIBC` and `ARM_VERSION` environment variables, respectively.
+*To consume your module published with prebuilds*, check out [neon-load-or-build](https://github.com/staltz/neon-load-or-build), which is analogous to [node-pre-gyp](https://github.com/prebuild/node-pre-gyp). That is, it will know how to pick the right `.node` file from the `prebuilds` folder.
 
 ## License
 
