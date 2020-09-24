@@ -1,6 +1,6 @@
 {
   "name": "neon-tag-prebuild",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Rename a Neon index.node to a prebuildify-style file",
   "repository": {
     "type": "git",
