@@ -11,7 +11,7 @@ var abi = process.versions.modules;
 var runtime = isElectron() ? 'electron' : 'node';
 var arch = os.arch();
 var platform = os.platform();
-var libc = process.env.LIBC || (isAlpine(platform) ? 'musl' : 'glibc');
+var libc = process.env.LIBC || (isAlpine(platform) ? 'musl' : null);
 var armv =
   process.env.ARM_VERSION || (arch === 'arm64' ? '8' : vars.arm_version) || '';
 var uv = (process.versions.uv || '').split('.')[0];
@@ -53,6 +53,6 @@ function getFilename() {
   tags.push('abi' + nodeAbi.getAbi(target, runtime));
   // if (uv) tags.push('uv' + uv); // FIXME: support?
   if (armv) tags.push('armv' + abi);
-  // if (libc) tags.push(libc); // FIXME: support?
+  if (libc) tags.push(libc);
   return tags.join('.') + '.node';
 }
