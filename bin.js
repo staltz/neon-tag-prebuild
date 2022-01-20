@@ -52,7 +52,7 @@ function getFilename() {
   tags.push(runtime);
   tags.push('abi' + nodeAbi.getAbi(target, runtime));
   // if (uv) tags.push('uv' + uv); // FIXME: support?
-  if (armv) tags.push('armv' + abi);
+  if (armv) tags.push('armv' + armv);
   if (libc) tags.push(libc);
   return tags.join('.') + '.node';
 }
